@@ -34,53 +34,80 @@
 			<p>En cas de besoin, une équipe pluridisciplinaire peut-être constituée : architecte DPLG, décorateur(trice)</p>
 		</article>
 	</section>
+	
 	<section id="portfolio">
-		<h2>Mes Projets</h2>
+		<h2>Projets</h2>
+		<label for="category-select">Catégorie :</label>
+		<select id="category-select">
+		  <option value="">Toutes les catégories</option>
+		</select>
 		<div class="gallery">
-			<figure>
-				<img src="assets/images/abajour-tahina.png" alt="Abajour Tahina">
-				<figcaption>Abajour Tahina</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/appartement-paris-v.png" alt="Appartement Paris V">
-				<figcaption>Appartement Paris V</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/restaurant-sushisen-londres.png" alt="Restaurant Sushisen - Londres">
-				<figcaption>Restaurant Sushisen - Londres</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/la-balisiere.png" alt="Villa “La Balisiere” - Port Louis">
-				<figcaption>Villa “La Balisiere” - Port Louis</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/structures-thermopolis.png" alt="Structures Thermopolis">
-				<figcaption>Structures Thermopolis</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/appartement-paris-x.png" alt="Appartement Paris X">
-				<figcaption>Appartement Paris X</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/le-coteau-cassis.png" alt="Pavillon “Le coteau” - Cassis">
-				<figcaption>Pavillon “Le coteau” - Cassis</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/villa-ferneze.png" alt="Villa Ferneze - Isola d’Elba">
-				<figcaption>Villa Ferneze - Isola d’Elba</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/appartement-paris-xviii.png" alt="Appartement Paris XVIII">
-				<figcaption>Appartement Paris XVIII</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/bar-lullaby-paris.png" alt="Bar “Lullaby” - Paris">
-				<figcaption>Bar “Lullaby” - Paris</figcaption>
-			</figure>
-			<figure>
-				<img src="assets/images/hotel-first-arte-new-delhi.png" alt="Hotel First Arte - New Delhi">
-				<figcaption>Hotel First Arte - New Delhi</figcaption>
-			</figure>
+		</div>
+	  </section>
+	  
+	  <script>
+		// Récupérer les données de l'API pour les projets de l'architecte
+		fetch('http://localhost:5678/api/works')
+		  .then(response => response.json())
+		  .then(data => {
+			// Sélectionner l'élément de la galerie
+			const gallery = document.querySelector('.gallery');
+			
+			// Créer une fonction pour afficher les projets dans la galerie
+			function afficherProjets(projets) {
+			  gallery.innerHTML = '';
+			  projets.forEach(projet => {
+				const projetHTML = `
+				  <div class="projet">
+					<img src="${projet.imageUrl}" alt="${projet.title}">
+					<h3>${projet.title}</h3>
+					<p>${projet.category.name}</p>
+				  </div>
+				`;
+				gallery.insertAdjacentHTML('beforeend', projetHTML);
+			  });
+			}
+	  
+			// Afficher tous les projets par défaut
+			afficherProjets(data);
+	  
+			// Récupérer les données de l'API pour les catégories
+			fetch('http://localhost:5678/api/categories')
+			  .then(response => response.json())
+			  .then(categories => {
+				// Sélectionner l'élément de la liste déroulante
+				const categorySelect = document.querySelector('#category-select');
+	  
+				// Parcourir les données et créer les options pour chaque catégorie
+				categories.forEach(category => {
+				  // Créer l'élément option de la catégorie
+				  const categoryOption = document.createElement('option');
+				  categoryOption.value = category.id;
+				  categoryOption.textContent = category.name;
+	  
+				  // Ajouter la catégorie à la liste déroulante
+				  categorySelect.appendChild(categoryOption);
+				});
+	  
+				// Écouter les changements de sélection de catégorie dans la liste déroulante
+				categorySelect.addEventListener('change', () => {
+				  const selectedCategoryId = categorySelect.value;
+				  if (selectedCategoryId) {
+					// Filtrer les projets en fonction de la catégorie sélectionnée
+					const projetsFiltres = data.filter(projet => projet.categoryId === parseInt(selectedCategoryId));
+					afficherProjets(projetsFiltres);
+				  } else {
+					// Afficher tous les projets si aucune catégorie n'est sélectionnée
+					afficherProjets(data);
+				  }
+				});
+			  })
+			  .catch(error => console.error(error));
+		  })
+		  .catch(error => console.error(error));
+	  </script>
+	  
+
 		</div>
 	</section>
 	<section id="contact">
