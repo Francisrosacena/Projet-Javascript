@@ -17,7 +17,7 @@
 		<ul>
 			<li>projets</li>
 			<li>contact</li>
-			<li>login</li>
+			<li src="./">login</li>
 			<li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
 		</ul>
 	</nav>
@@ -37,74 +37,71 @@
 	
 	<section id="portfolio">
 		<h2>Projets</h2>
-		<label for="category-select">Catégorie :</label>
-		<select id="category-select">
-		  <option value="">Toutes les catégories</option>
-		</select>
-		<div class="gallery">
-		</div>
-	  </section>
+		<section class="filters">
+			<h2>Filtres par catégorie :</h2>
+		  </section>
+		  <section class="gallery">
+		  </section>
 	  
 	  <script>
-		// Récupérer les données de l'API pour les projets de l'architecte
-		fetch('http://localhost:5678/api/works')
-		  .then(response => response.json())
-		  .then(data => {
-			// Sélectionner l'élément de la galerie
-			const gallery = document.querySelector('.gallery');
-			
-			// Créer une fonction pour afficher les projets dans la galerie
-			function afficherProjets(projets) {
-			  gallery.innerHTML = '';
-			  projets.forEach(projet => {
-				const projetHTML = `
-				  <div class="projet">
-					<img src="${projet.imageUrl}" alt="${projet.title}">
-					<h3>${projet.title}</h3>
-					<p>${projet.category.name}</p>
-				  </div>
-				`;
-				gallery.insertAdjacentHTML('beforeend', projetHTML);
-			  });
-			}
-	  
-			// Afficher tous les projets par défaut
-			afficherProjets(data);
-	  
-			// Récupérer les données de l'API pour les catégories
-			fetch('http://localhost:5678/api/categories')
-			  .then(response => response.json())
-			  .then(categories => {
-				// Sélectionner l'élément de la liste déroulante
-				const categorySelect = document.querySelector('#category-select');
-	  
-				// Parcourir les données et créer les options pour chaque catégorie
-				categories.forEach(category => {
-				  // Créer l'élément option de la catégorie
-				  const categoryOption = document.createElement('option');
-				  categoryOption.value = category.id;
-				  categoryOption.textContent = category.name;
-	  
-				  // Ajouter la catégorie à la liste déroulante
-				  categorySelect.appendChild(categoryOption);
-				});
-	  
-				// Écouter les changements de sélection de catégorie dans la liste déroulante
-				categorySelect.addEventListener('change', () => {
-				  const selectedCategoryId = categorySelect.value;
-				  if (selectedCategoryId) {
-					// Filtrer les projets en fonction de la catégorie sélectionnée
-					const projetsFiltres = data.filter(projet => projet.categoryId === parseInt(selectedCategoryId));
-					afficherProjets(projetsFiltres);
-				  } else {
-					// Afficher tous les projets si aucune catégorie n'est sélectionnée
-					afficherProjets(data);
-				  }
-				});
-			  })
-			  .catch(error => console.error(error));
-		  })
-		  .catch(error => console.error(error));
+	// Récupération des éléments HTML nécessaires
+const gallery = document.querySelector('.gallery');
+const filters = document.querySelector('.filters');
+
+// Récupération des catégories
+fetch('http://localhost:5678/api/categories')
+  .then(response => response.json())
+  .then(categories => {
+    // Création des filtres de catégorie
+    const allFilter = document.createElement('button');
+    allFilter.textContent = 'Tous';
+    allFilter.dataset.categoryId = '';
+    filters.appendChild(allFilter);
+    
+    categories.forEach(category => {
+      const categoryFilter = document.createElement('button');
+      categoryFilter.textContent = category.name;
+      categoryFilter.dataset.categoryId = category.id;
+      filters.appendChild(categoryFilter);
+    });
+
+    // Récupération des projets de l'architecte
+    fetch('http://localhost:5678/api/works')
+      .then(response => response.json())
+      .then(works => {
+        // Fonction pour ajouter les projets dans la galerie
+        function addWorksToGallery(works) {
+          // Suppression des projets existants dans la galerie
+          gallery.innerHTML = '';
+
+          // Ajout des projets dans la galerie
+          works.forEach(work => {
+            const workElement = document.createElement('div');
+            workElement.classList.add('work');
+            const workImage = document.createElement('img');
+            workImage.src = work.imageUrl;
+            workImage.alt = work.title;
+            const workTitle = document.createElement('h4');
+            workTitle.textContent = work.title;
+            workElement.appendChild(workImage);
+            workElement.appendChild(workTitle);
+            gallery.appendChild(workElement);
+          });
+        }
+
+        // Ajout des projets dans la galerie au chargement de la page
+        addWorksToGallery(works);
+
+        // Ajout des événements de filtrage sur les boutons de catégorie
+        filters.addEventListener('click', event => {
+          const categoryId = event.target.dataset.categoryId;
+          const filteredWorks = categoryId ? works.filter(work => work.categoryId == categoryId) : works;
+          addWorksToGallery(filteredWorks);
+        });
+      })
+      .catch(error => console.error(error));
+  })
+  .catch(error => console.error(error));
 	  </script>
 	  
 
