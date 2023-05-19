@@ -186,3 +186,58 @@ footer nav ul {
 	margin: 2em
 }
 
+.container{
+		width: 50%;
+		margin: auto;
+		margin-top:15vh;
+		margin-bottom:15vh;
+}
+label{width:100%;}
+.login{
+	margin-bottom:50px;
+}
+.form-group p{
+	margin: 2em 0 1em 0;
+}
+.form-group{
+	text-align: left;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.connecter{
+	font-family: 'Syne';
+	font-weight: 700;
+	color: white;
+	background-color: #1D6154;
+	margin : 2em auto ;
+	width: 180px;
+	text-align: center;
+	border-radius: 60px ;
+}
+
+.container input, .container .connecter{
+	height: 50px;
+    font-size: 1.2em;
+    border: none;
+    box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+}
+.passe-oublier a{
+	font-family: 'Work Sans';
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 16px;
+text-decoration-line: underline;
+color: #3D3D3D;
+}
+.passe-oublier{
+	text-align: center;
+}
+#erreur-message{
+	color:red;
+	font-weight: 500;
+	text-align: center;
+	margin : 2em auto ;
+}

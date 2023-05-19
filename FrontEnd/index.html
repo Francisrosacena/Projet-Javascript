@@ -42,68 +42,68 @@
 		  </section>
 		  <section class="gallery">
 		  </section>
-	  
 	  <script>
-	// Récupération des éléments HTML nécessaires
+		// Récupération des éléments HTML nécessaires
 const gallery = document.querySelector('.gallery');
 const filters = document.querySelector('.filters');
 
-// Récupération des catégories
-fetch('http://localhost:5678/api/categories')
+// Fonction pour ajouter un projet à la galerie
+function addWorkToGallery(work) {
+  const workElement = document.createElement('div');
+  workElement.classList.add('work');
+  const workImage = document.createElement('img');
+  workImage.src = work.imageUrl;
+  workImage.alt = work.title;
+  const workTitle = document.createElement('h4');
+  workTitle.textContent = work.title;
+  workElement.appendChild(workImage);
+  workElement.appendChild(workTitle);
+  gallery.appendChild(workElement);
+}
+
+// Récupération des projets de l'architecte depuis l'API
+fetch('http://localhost:5678/api/works')
   .then(response => response.json())
-  .then(categories => {
-    // Création des filtres de catégorie
-    const allFilter = document.createElement('button');
-    allFilter.textContent = 'Tous';
-    allFilter.dataset.categoryId = '';
-    filters.appendChild(allFilter);
-    
-    categories.forEach(category => {
-      const categoryFilter = document.createElement('button');
-      categoryFilter.textContent = category.name;
-      categoryFilter.dataset.categoryId = category.id;
-      filters.appendChild(categoryFilter);
+  .then(works => {
+    // Ajout de tous les travaux à la galerie
+    works.forEach(work => {
+      addWorkToGallery(work);
     });
 
-    // Récupération des projets de l'architecte
-    fetch('http://localhost:5678/api/works')
+    // Récupération des catégories depuis l'API
+    fetch('http://localhost:5678/api/categories')
       .then(response => response.json())
-      .then(works => {
-        // Fonction pour ajouter les projets dans la galerie
-        function addWorksToGallery(works) {
-          // Suppression des projets existants dans la galerie
+      .then(categories => {
+        // Création du filtre "Tous"
+        const allFilter = document.createElement('button');
+        allFilter.textContent = 'Tous';
+        allFilter.addEventListener('click', () => {
           gallery.innerHTML = '';
-
-          // Ajout des projets dans la galerie
           works.forEach(work => {
-            const workElement = document.createElement('div');
-            workElement.classList.add('work');
-            const workImage = document.createElement('img');
-            workImage.src = work.imageUrl;
-            workImage.alt = work.title;
-            const workTitle = document.createElement('h4');
-            workTitle.textContent = work.title;
-            workElement.appendChild(workImage);
-            workElement.appendChild(workTitle);
-            gallery.appendChild(workElement);
+            addWorkToGallery(work);
           });
-        }
+        });
+        filters.appendChild(allFilter);
 
-        // Ajout des projets dans la galerie au chargement de la page
-        addWorksToGallery(works);
-
-        // Ajout des événements de filtrage sur les boutons de catégorie
-        filters.addEventListener('click', event => {
-          const categoryId = event.target.dataset.categoryId;
-          const filteredWorks = categoryId ? works.filter(work => work.categoryId == categoryId) : works;
-          addWorksToGallery(filteredWorks);
+        // Création des filtres pour chaque catégorie
+        categories.forEach(category => {
+          const categoryFilter = document.createElement('button');
+          categoryFilter.textContent = category.name;
+          categoryFilter.addEventListener('click', () => {
+            gallery.innerHTML = '';
+            const filteredWorks = works.filter(work => work.categoryId === category.id);
+            filteredWorks.forEach(work => {
+              addWorkToGallery(work);
+            });
+          });
+          filters.appendChild(categoryFilter);
         });
       })
       .catch(error => console.error(error));
   })
   .catch(error => console.error(error));
+
 	  </script>
-	  
 
 		</div>
 	</section>
