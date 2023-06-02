@@ -12,6 +12,64 @@
 </head>
 <body>
 <header>
+	<div class="barre-modal">
+	<button id="btn-modifier">Mode édition</button>
+
+    <!-- Fenêtre modale -->
+    <div id="modal" class="modal" aria-hidden="true" aria-labelledby="modal-title" role="dialog">
+      <div class="modal-content">
+        <button id="close-modal" aria-label="Fermer">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h3 id="modal-title">Ajouter un média</h3>
+        <!-- Ajoutez ici les éléments nécessaires pour ajouter un média -->
+      </div>
+    </div>
+</div>
+
+	<script>
+// Récupération des éléments nécessaires
+const btnModifier = document.getElementById('btn-modifier');
+const modal = document.getElementById('modal');
+const closeModalBtn = document.getElementById('close-modal');
+
+// Fonction pour gérer l'ouverture de la fenêtre modale
+function openModal() {
+  modal.style.display = 'block';
+  modal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+}
+
+// Fonction pour gérer la fermeture de la fenêtre modale
+function closeModal() {
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+}
+
+// Gestion de l'ouverture de la fenêtre modale
+btnModifier.addEventListener('click', openModal);
+
+// Gestion de la fermeture de la fenêtre modale en cliquant sur le bouton de fermeture
+closeModalBtn.addEventListener('click', closeModal);
+
+// Gestion de la fermeture de la fenêtre modale en cliquant en dehors de celle-ci
+modal.addEventListener('click', (event) => {
+  if (event.target === modal) {
+    closeModal();
+  }
+});
+
+// Gestion de la fermeture de la fenêtre modale en appuyant sur la touche Échap
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && modal.style.display === 'block') {
+    closeModal();
+  }
+});
+	</script>
+
+
+
 	<h1>Sophie Bluel <span>Architecte d'inteérieur</span></h1>
 	<nav>
 		<ul>
