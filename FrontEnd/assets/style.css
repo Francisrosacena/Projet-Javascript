@@ -761,3 +761,7 @@ img {
 	margin: auto;
 	margin-bottom: 30px;
 }
+#error-message{
+	color:red;
+	text-align: center;
+}

@@ -68,10 +68,15 @@
 
  // Fonction pour gérer la fermeture de la fenêtre modale
  function closeModal() {
-   modal.style.display = 'none';
-   modal.setAttribute('aria-hidden', 'true');
-   document.body.classList.remove('modal-open');
- }
+  modal.style.display = 'none';
+  modal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+
+  // Supprimer le contenu de l'élément de prévisualisation de l'image
+  previewImage.src = '';
+  uploadWrapper.classList.remove('has-preview');
+  ContentDisappear.classList.remove('disappear');
+}
 
  // Gestion de l'ouverture de la fenêtre modale
  btnModifier.addEventListener('click', openModal);
@@ -136,42 +141,79 @@ imageUploadInput.addEventListener('change', () => {
  }
 });
  
- // Fonction pour envoyer une nouvelle image avec le titre et la catégorie à l'API
- function addNewPhoto() {
-   const file = imageUploadInput.files[0];
-   const title = imageTitleInput.value;
-   const category = imageCategorySelect.value;
+// Gestion de l'événement de changement de l'input de téléchargement de l'image
+imageUploadInput.addEventListener('change', () => {
+  const file = imageUploadInput.files[0];
 
-   if (file && title && category) {
-     // Créer un objet FormData pour envoyer les données
-     const formData = new FormData();
-     formData.append('image', file);
-     formData.append('title', title);
-     formData.append('category', category);
+  // Vérifier si un fichier a été sélectionné
+  if (file) {
+    // Créer un objet URL pour afficher le preview de l'image
+    const imageURL = URL.createObjectURL(file);
+    // Afficher l'image dans l'élément de prévisualisation
+    previewImage.src = imageURL;
+    // Ajouter la classe has-preview à upload-wrapper
+    uploadWrapper.classList.add('has-preview');
+    ContentDisappear.classList.add('disappear');
+  } else {
+    // Réinitialiser l'élément de prévisualisation si aucun fichier n'est sélectionné
+    previewImage.src = '';
+    // Supprimer la classe has-preview de upload-wrapper
+    uploadWrapper.classList.remove('has-preview');
+    ContentDisappear.classList.remove('disappear');
+  }
+});
 
-     // Envoyer la requête POST à l'API
-     fetch('http://localhost:5678/api/works', {
-       headers: {Authorization:GetBearerToken()},
-       method: 'POST',
-       body: formData
-     })
-       .then(response => response.json())
-       .then(data => {
-         // Vider les champs du formulaire
-         imageUploadInput.value = '';
-         imageTitleInput.value = '';
-         imageCategorySelect.value = '';
 
-         // Afficher le modal de la galerie photo à jour
-         openModal();
-       })
-       .catch(error => {
-         console.error('Une erreur s\'est produite lors de l\'ajout de la photo:', error);
-       });
-   } else {
-     console.error('Veuillez sélectionner une image, saisir un titre et choisir une catégorie.');
-   }
- }
+// Fonction pour ajouter une nouvelle photo à la galerie
+function addNewPhoto(event) {
+  event.preventDefault(); // Empêche le rafraichissement de la page
+
+  const file = imageUploadInput.files[0];
+  const title = imageTitleInput.value;
+  const category = imageCategorySelect.value;
+
+  if (file && title && category) {
+    // Créer un objet FormData pour envoyer les données
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('title', title);
+    formData.append('category', category);
+
+    // Envoyer la requête POST à l'API
+    fetch('http://localhost:5678/api/works', {
+      headers: { Authorization: GetBearerToken() },
+      method: 'POST',
+      body: formData
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Vider les champs du formulaire
+        imageUploadInput.value = '';
+        imageTitleInput.value = '';
+        imageCategorySelect.value = '';
+
+        // Fermer le modal d'ajout de photo
+        closeModal();
+
+        // Créer un nouvel élément d'image avec les données de la nouvelle photo
+        const newImageElement = createImageElement(data);
+
+        // Ajouter la nouvelle image à la galerie existante
+        gallery.appendChild(newImageElement);
+      })
+      .catch(error => {
+        console.error('Une erreur s\'est produite lors de l\'ajout de la photo:', error);
+      });
+  } else {
+    // Afficher un message d'erreur lorsque tous les champs ne sont pas remplis
+    const errorMessage = document.getElementById('error-message');
+    errorMessage.textContent = 'Veuillez remplir tous les champs.';
+  }
+}
+
+// Gestion de l'événement du bouton "Valider" dans le modal d'ajout de photo
+addPhotoButton.addEventListener('click', addNewPhoto);
+
 
  // Pour récupérer les catégories depuis l'API
  fetch('http://localhost:5678/api/works')
@@ -199,8 +241,6 @@ imageUploadInput.addEventListener('change', () => {
    console.error('Une erreur s\'est produite lors de la récupération des travaux:', error);
  });
 
- // Gestion de l'événement du bouton "Valider" dans le modal d'ajout de photo
- addPhotoButton.addEventListener('click', addNewPhoto);
 
  // Fonction pour afficher le modal d'ajout de photo
  function showAddPhotoModal() {
@@ -214,27 +254,7 @@ imageUploadInput.addEventListener('change', () => {
    modal1.style.display = 'block';
  }
 
-// Fonction pour vérifier si tous les champs sont remplis
-function checkFieldsValidity() {
- const file = imageUploadInput.files[0];
- const title = imageTitleInput.value;
- const category = imageCategorySelect.value;
 
- // Vérifier si tous les champs sont remplis
- const isValid = file && title && category;
-
- // Modifier le style du bouton "Valider" en fonction de la validité des champs
- addPhotoButton.style.backgroundColor = isValid ? '#1D6154' : '';
-}
-
-// Gestion de l'événement de changement de l'input de titre
-imageTitleInput.addEventListener('input', checkFieldsValidity);
-
-// Gestion de l'événement de changement de l'input de catégorie
-imageCategorySelect.addEventListener('change', checkFieldsValidity);
-
-// Gestion de l'événement de changement de l'input de téléchargement de l'image
-imageUploadInput.addEventListener('change', checkFieldsValidity);
 
  // Gestion de l'événement du bouton "Ajouter une photo"
  addButton.addEventListener('click', showAddPhotoModal);
@@ -377,13 +397,15 @@ function checkUserLogin() {
   
     // Fonction pour rafraîchir la galerie
     function refreshGallery() {
-      // Supprimer tous les éléments de la galerie
-      gallery.innerHTML = '';
-  
       // Récupération des projets de l'architecte depuis l'API
       fetch('http://localhost:5678/api/works')
         .then(response => response.json())
         .then(works => {
+          // Supprimer tous les éléments de la galerie
+          while (gallery.firstChild) {
+            gallery.firstChild.remove();
+          }
+    
           // Ajout de tous les travaux à la galerie
           works.forEach(work => {
             addWorkToGallery(work);
@@ -391,4 +413,3 @@ function checkUserLogin() {
         })
         .catch(error => console.error(error));
     }
-  
