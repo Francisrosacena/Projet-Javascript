@@ -172,7 +172,7 @@ function addNewPhoto(event) {
   const title = imageTitleInput.value;
   const category = imageCategorySelect.value;
 
-  if (file && title && category) {
+  if (file && title && category !== '0') {
     // Créer un objet FormData pour envoyer les données
     const formData = new FormData();
     formData.append('image', file);
