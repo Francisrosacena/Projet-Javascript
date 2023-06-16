@@ -117,29 +117,6 @@
        console.error('Une erreur s\'est produite lors de la suppression du travail:', error);
      });
  }
-
-// Gestion de l'événement de changement de l'input de téléchargement de l'image
-imageUploadInput.addEventListener('change', () => {
- const file = imageUploadInput.files[0];
-
- // Vérifier si un fichier a été sélectionné
- if (file) {
-   // Créer un objet URL pour afficher le preview de l'image
-   const imageURL = URL.createObjectURL(file);
-   // Afficher l'image dans l'élément de prévisualisation
-   previewImage.src = imageURL;
-   // Ajouter la classe has-preview à upload-wrapper
-   uploadWrapper.classList.add('has-preview');
-   ContentDisappear.classList.add('disappear');
-
- } else {
-   // Réinitialiser l'élément de prévisualisation si aucun fichier n'est sélectionné
-   previewImage.src = '';
-   // Supprimer la classe has-preview de upload-wrapper
-   uploadWrapper.classList.remove('has-preview');
-   ContentDisappear.classList.remove('disappear');
- }
-});
  
 // Gestion de l'événement de changement de l'input de téléchargement de l'image
 imageUploadInput.addEventListener('change', () => {
@@ -181,29 +158,29 @@ function addNewPhoto(event) {
 
     // Envoyer la requête POST à l'API
     fetch('http://localhost:5678/api/works', {
-      headers: { Authorization: GetBearerToken() },
       method: 'POST',
+      headers: { 
+        Accept: "application/json",
+        Authorization: GetBearerToken()
+      },
       body: formData
     })
-      .then(response => response.json())
-      .then(data => {
-        // Vider les champs du formulaire
-        imageUploadInput.value = '';
-        imageTitleInput.value = '';
-        imageCategorySelect.value = '';
+    .then(res => res.json())
+    .then(dataNewPhoto => {
+      // Créer un nouvel élément d'image avec les données de la nouvelle photo
+      addWorkToGallery(dataNewPhoto);
 
-        // Fermer le modal d'ajout de photo
-        closeModal();
+      // Vider les champs du formulaire
+      imageUploadInput.value = '';
+      imageTitleInput.value = '';
+      imageCategorySelect.value = '';
 
-        // Créer un nouvel élément d'image avec les données de la nouvelle photo
-        const newImageElement = createImageElement(data);
-
-        // Ajouter la nouvelle image à la galerie existante
-        gallery.appendChild(newImageElement);
-      })
-      .catch(error => {
-        console.error('Une erreur s\'est produite lors de l\'ajout de la photo:', error);
-      });
+      // Fermer le modal d'ajout de photo
+      closeModal();
+    })
+    .catch(error => {
+      console.error('Une erreur s\'est produite lors de l\'ajout de la photo:', error);
+    });
   } else {
     // Afficher un message d'erreur lorsque tous les champs ne sont pas remplis
     const errorMessage = document.getElementById('error-message');
@@ -269,67 +246,67 @@ addPhotoButton.addEventListener('click', addNewPhoto);
 
 // Fonction pour vérifier l'état de connexion de l'utilisateur
 function checkUserLogin() {
-    // Vérifier le token dans le local storage
-    let token =  localStorage.getItem('token');
-    let userConnected = token != null && token != undefined && token != '';
-  
-    if (userConnected) {
-      // L'utilisateur est connecté
-      document.body.classList.add('edit');
-      const loginLink = document.querySelector('nav ul li a[href="login.html"]');
-      loginLink.textContent = 'Logout';
-      loginLink.addEventListener('click', logoutUser);
-  
-      const barreModal = document.getElementById('barre-modal');
-      barreModal.style.display = 'block';
-  
-      const modifierLinks = document.querySelectorAll('.modifier');
-      modifierLinks.forEach(link => {
-        link.style.display = 'block';
-        link.addEventListener('click', openModal);
-      });
-  
-      const modifier2Links = document.querySelectorAll('.modifier2');
-      modifier2Links.forEach(link => {
-        link.style.display = 'block';
-        link.addEventListener('click', openModal);
-      });
-  
-      const filtersSection = document.querySelector('.filters');
-      filtersSection.style.display = 'none';
-    } else {
-      // L'utilisateur n'est pas connecté
-      const barreModal = document.getElementById('barre-modal');
-      barreModal.style.display = 'none';
-  
-      const modifierLinks = document.querySelectorAll('.modifier');
-      modifierLinks.forEach(link => {
-        link.style.display = 'none';
-      });
-  
-      const modifier2Links = document.querySelectorAll('.modifier2');
-      modifier2Links.forEach(link => {
-        link.style.display = 'none';
-      });
-  
-      const filtersSection = document.querySelector('.filters');
-      filtersSection.style.display = 'block';
-  
-      const loginLink = document.querySelector('nav ul li a[href="login.html"]');
-      loginLink.textContent = 'Login';
-    }
+  // Vérifier le token dans le local storage
+  let token =  localStorage.getItem('token');
+  let userConnected = token != null && token != undefined && token != '';
+
+  if (userConnected) {
+    // L'utilisateur est connecté
+    document.body.classList.add('edit');
+    const loginLink = document.querySelector('nav ul li a[href="login.html"]');
+    loginLink.textContent = 'Logout';
+    loginLink.addEventListener('click', logoutUser);
+
+    const barreModal = document.getElementById('barre-modal');
+    barreModal.style.display = 'block';
+
+    const modifierLinks = document.querySelectorAll('.modifier');
+    modifierLinks.forEach(link => {
+      link.style.display = 'block';
+      link.addEventListener('click', openModal);
+    });
+
+    const modifier2Links = document.querySelectorAll('.modifier2');
+    modifier2Links.forEach(link => {
+      link.style.display = 'block';
+      link.addEventListener('click', openModal);
+    });
+
+    const filtersSection = document.querySelector('.filters');
+    filtersSection.style.display = 'none';
+  } else {
+    // L'utilisateur n'est pas connecté
+    const barreModal = document.getElementById('barre-modal');
+    barreModal.style.display = 'none';
+
+    const modifierLinks = document.querySelectorAll('.modifier');
+    modifierLinks.forEach(link => {
+      link.style.display = 'none';
+    });
+
+    const modifier2Links = document.querySelectorAll('.modifier2');
+    modifier2Links.forEach(link => {
+      link.style.display = 'none';
+    });
+
+    const filtersSection = document.querySelector('.filters');
+    filtersSection.style.display = 'block';
+
+    const loginLink = document.querySelector('nav ul li a[href="login.html"]');
+    loginLink.textContent = 'Login';
   }
+}
   
-  // Fonction pour déconnecter l'utilisateur
-  function logoutUser() {
-    localStorage.removeItem('token');
-    // Recharger la page
-    window.location.reload();
-  }
+// Fonction pour déconnecter l'utilisateur
+function logoutUser() {
+  localStorage.removeItem('token');
+  // Recharger la page
+  window.location.reload();
+}
   
   
   // Appel de la fonction pour vérifier l'état de connexion de l'utilisateur
-  checkUserLogin();
+checkUserLogin();
   
   
           // Récupération des éléments HTML nécessaires
