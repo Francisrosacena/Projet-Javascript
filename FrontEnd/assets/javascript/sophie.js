@@ -76,6 +76,7 @@
   previewImage.src = '';
   uploadWrapper.classList.remove('has-preview');
   ContentDisappear.classList.remove('disappear');
+  goBackToGallery()
 }
 
  // Gestion de l'ouverture de la fenêtre modale
